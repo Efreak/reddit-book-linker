@@ -21,7 +21,6 @@ if(!apikey) {
 	GM_SuperValue.set ('apikey', apikey);
 }
 
-
 /*  Copyright © 2000 Efreak <efreak@users.noreply.github.com>
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
@@ -122,25 +121,25 @@ $.ajaxSetup({
 			info.push('<span class="bookinfo"><span class="title">'+data.title_latin+'</span> by <span class="author">'+data.author_data.name+'</span></span> '); //add title
 			info.push('<a class="lthing" href="//librarything.com/isbn/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="LibraryThing"></a>'); //reviews, library, etc
 			info.push('<a class="greads" href="//goodreads.com/search?q='+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="GoodReads"></a>'); //reviews
-			info.push('<a class="amzn" href="//smile.amazon.com/'+data.book_id+'/dp/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Amazon"></a>'); //add amazon link. No referrals, just smile :)
+			info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
 			info.push('<a class="gbks" href="//books.google.com/books?vid=ISBN'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Google Books"></a>'); //add google books link
 			info.push('<a class="bfinder" href="//bookfinder.com/search/?keywords='+(data.isbn10 ? data.isbn10 : data.isbn13)+'&st=sh&ac=qr" title="BookFinder"></a>'); //add BookFinder url. Finds your book elsewhere (ebay, etc). Glorious referrals (on their links, not mine)
 		} catch(err) {
 			info.push('<span class="noresults" title=""ISBNdb has no results for '+title+'. Linking to generic searches instead">'+title+" search:</span> ")
 			info.push('<a class="lthing" href="//librarything.com/search.php?search='+title+'" title="LibraryThing"></a>');
 			info.push('<a class="greads" href="//goodreads.com/search?q='+title+'" title="GoodReads"></a>');
-			info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+data.book_id+'/dp/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Amazon"></a>');
+			info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
 			info.push('<a class="gbks" href="//bookfinder.com/search/?keywords='+title+'&st=sh&ac=qr" title="BookFinder"></a>');
 			info.push('<a class="bfinder" href="//google.com/search?tbm=bks&q='+title+'" title="Google Books"></a>');
 		}
-	}).fail(function(data){
+	}).error(function(data){
 		info.push('<span class="failure" title="Failed to contact ISBNdb. Linking to generic searches instead">'+title+" search:</span> ")
 		info.push('<a class="lthing" href="//librarything.com/search.php?search='+title+'" title="LibraryThing"></a>');
 		info.push('<a class="greads" href="//goodreads.com/search?q='+title+'" title="GoodReads"></a>');
-		info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+data.book_id+'/dp/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Amazon"></a>');
+		info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
 		info.push('<a class="gbks" href="//bookfinder.com/search/?keywords='+title+'&st=sh&ac=qr" title="BookFinder"></a>');
 		info.push('<a class="bfinder" href="//google.com/search?tbm=bks&q='+title+'" title="Google Books"></a>');
-	}).always(function(data){
+	}).complete(function(data){
 		var newEle = $("<span/>", {
 			"class": "booklinks",
 			html: info.join("")
@@ -156,7 +155,7 @@ var addbookcss = function() {
 	".gbks {background:url(//books.google.com/favicon.ico)}",
 	".amzn {background:url(//amazon.com/favicon.ico)}",
 	".bfinder {background:url(//bookfinder.com/favicon.ico)}",
-	".lthing, .greads, .amzn, .gbks, .bfinder { margin-left:2px; margin-right:2px; width:1.5em;display:inline-block;height:1.5em;background-size:contain;background-repeat:none;padding-top:2px;padding-bottom:2px;}"].join('\n')).appendTo(document.head);
+	".lthing, .greads, .amzn, .gbks, .bfinder { margin-left:2px; margin-right:2px; width:1.5em;display:inline-block;height:1.5em;background-size:contain;background-repeat:no-repeat;padding-top:2px;padding-bottom:2px;vertical-align:middle;}"].join('\n')).appendTo(document.head);
 }
 $(document).ready(function() {
 	addbookcss();
