@@ -6,6 +6,7 @@ How to use
 6. Install tampermonkey, greasemonkey, or etc.
 5. Install the script
 4. Go to reddit and add an api key (can be fake if you don't care)
+49. When you click someone's flair, it tries to linkify it. TODO: identify book subreddits so this doesn't interfere elsewhere.
 3. When you want to link to a book, do something like this: `[Book](/b "The Golden Compass") [Book](/b "0441940005")`
 
 - If you have an API key, you get this:
@@ -26,7 +27,10 @@ TODO
 1. Convince reddit to stop using X-Frame-Options so I can redirect all visits through [nyanit](http://www.nyanit.com).
 0. Boom! (???)
 69. Add a button to linkify when you make a selection.
-69. Add /f links to bypass ISBNdb entirely and search for things that aren't books (like genres, authors, etc).
+69. ~~Add /f links to bypass ISBNdb entirely and search for things that aren't books (like genres, authors, etc).~~
 69. Learn how to count properly?
+69. ~~Flair converter~~
+69. identify book subreddits so this doesn't interfere elsewhere.
+70. Fix licensing. Source includes some borrowed code, cannot be released WTFPL.
 
 License: This script is licensed under the WTFPL.
