@@ -21,12 +21,14 @@ if(!apikey) {
 	GM_SuperValue.set ('apikey', apikey);
 }
 
-/*  Copyright © 2000 Efreak <efreak@users.noreply.github.com>
+/*  Copyright © 2015 Efreak <efreak@users.noreply.github.com>
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
  *  and/or modify it under the terms of the Do What The Fuck You Want
  *  To Public License, Version 2, as published by Sam Hocevar. See
  *  http://www.wtfpl.net/ for more details.
+ *
+ *  oh crap, I borrowed the code below from blueshiftlabs' flair linker, I thought I'd gotten rid of it. But this doesn't work without it. Time to change license...
  */  
 
 (function() {
@@ -112,33 +114,35 @@ $.ajaxSetup({
 
  var bookInfo = function(title,element){
 	var info=[];
-	var url='https://isbndb.com/api/v2/json/'+apikey+'/book/'+title.split(' ').join('_');
+	if(apikey==="none"||apikey==="") { //if no api key, don't bother looking up the title etc, since it'll just fail.
+		info.push('<span class="apikeynone" title="Searching for items...">Search for <i>'+title+'</i> at ');
+		info = getSearches(title,info);
+		var newEle = $("<span/>", {
+			"class": "booklinks",
+			html: info.join("")
+		});
+		element.replaceWith(newEle);
+		return;
+	}
+	var url='https://isbndb.com/api/v2/json/'+apikey+'/book/'+title.split(' - ').join('?i=').split(' ').join('_'); //flair has titles split by 'username - author'.
 	var ymlquery="select * from json where url='"+url+"'";
 	var ymlurl='https://query.yahooapis.com/v1/public/yql?q='+ymlquery+'&format=json&diagnostics=true';
 	$.ajax(ymlurl).done(function(results){
 		try{
 			var data = results.query.results.json.data;
-			info.push('<span class="bookinfo"><span class="title">'+data.title_latin+'</span> by <span class="author">'+data.author_data.name+'</span></span> '); //add title
+			info.push('<span class="bookinfo"><span class="booktitle">'+data.title_latin+'</span> by <span class="bookauthor">'+data.author_data.name+'</span></span> '); //add title
 			info.push('<a class="lthing" href="//librarything.com/isbn/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="LibraryThing"></a>'); //reviews, library, etc
 			info.push('<a class="greads" href="//goodreads.com/search?q='+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="GoodReads"></a>'); //reviews
-			info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
+			info.push('<a class="amzn" href="//smile.amazon.com/'+encodeURIComponent(data.title_latin)+'/dp/'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Amazon"></a>');
 			info.push('<a class="gbks" href="//books.google.com/books?vid=ISBN'+(data.isbn10 ? data.isbn10 : data.isbn13)+'" title="Google Books"></a>'); //add google books link
 			info.push('<a class="bfinder" href="//bookfinder.com/search/?keywords='+(data.isbn10 ? data.isbn10 : data.isbn13)+'&st=sh&ac=qr" title="BookFinder"></a>'); //add BookFinder url. Finds your book elsewhere (ebay, etc). Glorious referrals (on their links, not mine)
 		} catch(err) {
 			info.push('<span class="noresults" title=""ISBNdb has no results for '+title+'. Linking to generic searches instead">'+title+" search:</span> ")
-			info.push('<a class="lthing" href="//librarything.com/search.php?search='+title+'" title="LibraryThing"></a>');
-			info.push('<a class="greads" href="//goodreads.com/search?q='+title+'" title="GoodReads"></a>');
-			info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
-			info.push('<a class="gbks" href="//bookfinder.com/search/?keywords='+title+'&st=sh&ac=qr" title="BookFinder"></a>');
-			info.push('<a class="bfinder" href="//google.com/search?tbm=bks&q='+title+'" title="Google Books"></a>');
+			info = getSearches(title,info);
 		}
 	}).error(function(data){
 		info.push('<span class="failure" title="Failed to contact ISBNdb. Linking to generic searches instead">'+title+" search:</span> ")
-		info.push('<a class="lthing" href="//librarything.com/search.php?search='+title+'" title="LibraryThing"></a>');
-		info.push('<a class="greads" href="//goodreads.com/search?q='+title+'" title="GoodReads"></a>');
-		info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
-		info.push('<a class="gbks" href="//bookfinder.com/search/?keywords='+title+'&st=sh&ac=qr" title="BookFinder"></a>');
-		info.push('<a class="bfinder" href="//google.com/search?tbm=bks&q='+title+'" title="Google Books"></a>');
+		info = getSearches(title,info);
 	}).complete(function(data){
 		var newEle = $("<span/>", {
 			"class": "booklinks",
@@ -147,6 +151,27 @@ $.ajaxSetup({
 		element.replaceWith(newEle);
 	});
 };
+
+var bookSearch = function(title,element){
+	var info=[];
+	info.push('<span class="noresults" title="Searching for items...">Search for <i>'+title+'</i> at ');
+	info = getSearches(title,info);
+	var newEle = $("<span/>", {
+		"class": "booksearch",
+		html: info.join("")
+	});
+	element.replaceWith(newEle);
+};
+
+var getSearches = function(title,oldInfo) {
+	var info = oldInfo;
+	info.push('<a class="lthing" href="//librarything.com/search.php?search='+title+'" title="LibraryThing"></a>');
+	info.push('<a class="greads" href="//goodreads.com/search?q='+title+'" title="GoodReads"></a>');
+	info.push('<a class="amzn" href="//smile.amazon.com/s/?url=search-alias%3Dstripbooks&field-keywords='+title+'" title="Amazon"></a>');
+	info.push('<a class="gbks" href="//bookfinder.com/search/?keywords='+title+'&st=sh&ac=qr" title="BookFinder"></a>');
+	info.push('<a class="bfinder" href="//google.com/search?tbm=bks&q='+title+'" title="Google Books"></a>');
+	return info;
+}
 
 var addbookcss = function() {
 	$('<style type="text/css">')
@@ -157,9 +182,18 @@ var addbookcss = function() {
 	".bfinder {background:url(//bookfinder.com/favicon.ico)}",
 	".lthing, .greads, .amzn, .gbks, .bfinder { margin-left:2px; margin-right:2px; width:1.5em;display:inline-block;height:1.5em;background-size:contain;background-repeat:no-repeat;padding-top:2px;padding-bottom:2px;vertical-align:middle;}"].join('\n')).appendTo(document.head);
 }
+
 $(document).ready(function() {
 	addbookcss();
 	$('a[href="/b"]').each(function() {
 		bookInfo($(this).attr('title'), $(this));
+	});
+	$('a[href="/f"]').each(function() {
+		bookSearch($(this).attr('title'), $(this));
+	});
+	$('span.flair').each(function() {
+		$(this).click(function(){
+			bookInfo($(this).attr('title'), $(this));
+		});
 	});
 });
