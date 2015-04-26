@@ -3,7 +3,7 @@
 // @author Efreak
 // @namespace http://efreakbnc.net/booklinker
 // @description Adds links to amazon, etc when putting book names in a link
-// @version 1.2
+// @version 1.3
 // @updateURL http://raw.githubusercontent.com/Efreak/reddit-book-linker/master/booklinker.user.js
 // @updateURL https://raw.githubusercontent.com/Efreak/reddit-book-linker/master/booklinker.user.js
 // @downloadURL http://raw.githubusercontent.com/Efreak/reddit-book-linker/master/booklinker.user.js
@@ -14,22 +14,41 @@
 // @compatible Chrome, Greasemonkey
 // ==/UserScript==
 
+/*  The MIT License (MIT)
+ * 
+ * Copyright (c) 2015 Efreak, some parts (c) 2012-2014 Justin Paupore
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */  
+
+var sr_regex = /^\/r\/([a-z0-9_]+)/i
+var sr = sr_regex.exec(location.pathname);
+if (!sr) return;
+
+var validsubs = ['52book','alanmoore','altcomix','animesuggest','asimov','askliterarystudies','asksciencefiction','asoiaf','asoiafreread','atheistbookclub','audiobooks','audiobooksonyoutube','aynrand,','bakker','bookbinding','bookcaseporn','bookclub','bookcollecting','bookdiscussion','bookdownloads','bookexchange','bookhaul','bookies','booklists','bookporn','bookquotes','books','booksama','bookscirclejerk','bookshelf','booksuggestions','bookwallpapers','camphalfblood','childrensbooks','chinabookclub','christianbooks','christopherhitchens','cloudatlas','comedywriting','comicbookart','comicbooks','criticism','csbooks','currentlyreading','discworld','dresdenfiles','dystopianbooks','ebookdeals','ebooks','econbooks','fantasy','fantasy_bookclub','fantasy_freebies','fantasywriters','fiction','firstpage','freeebooks','freenookbooks','goodreads','harrypotter','heinlein','horror','horrorlit','houseofleaves','hungergames','ifyoulikeblank','infinitejest','jamesjoyce','janeausten','johngreen','justfinishedreading','keepwriting','kindle','kindlefree','kindlefreebies','kindlend','kingkillerchronicle','koontz','libraries','libraryofbabel','literature','literaturevideos','litvideos','lotr','marktwain','mathbooks','metro2033','michaelcrichton','murakami','Naruto','nook','paranormalromance','philipkdickheads','physicsbooks','poeticreddit','poetry','powdermage','printsf','proseporn','publishing','rand','random_acts_of_books','rarebooks','redditbooks','RedditThroughCulture','robinhobb','romance','sciencefiction','scifi','selflearning','selfpublishing','sf_book_club','shakespeare','shutupandwrite','SRDBrokeBooks','StarWars','stephenking','stormlight_archive','suggestmeabook','theartifice','thedarktower','thehobbit','thesilmarillion','tipofmytongue','tolkienbooks','tolkienfans','tomt','trackers','trekbooks','truebooks','urbanfantasy','verse','vonnegut','weirdlit','whatsthatbook','whattoreadwhen','wot','writers','writersofhorror','writing','wroteabook','yalit','yawriters'];
+if(validsubs.indexOf(sr[1]) < 0) return;
 
 var apikey=GM_SuperValue.get ('apikey', false);
 if(!apikey) {
 	apikey = prompt("I need an API key from http://www.isbndb.com to work correctly. If you don't want to get one, I can still give you links to searches, but I won't be able to get metadata; if this is the case, just enter 'no' below.");
 	GM_SuperValue.set ('apikey', apikey);
 }
-
-/*  Copyright © 2015 Efreak <efreak@users.noreply.github.com>
- *  This program is free software. It comes without any warranty, to
- *  the extent permitted by applicable law. You can redistribute it
- *  and/or modify it under the terms of the Do What The Fuck You Want
- *  To Public License, Version 2, as published by Sam Hocevar. See
- *  http://www.wtfpl.net/ for more details.
- *
- *  oh crap, I borrowed the code below from blueshiftlabs' flair linker, I thought I'd gotten rid of it. But this doesn't work without it. Time to change license...
- */  
 
 (function() {
 	/*! jQuery v1.7.2 jquery.com | jquery.org/license */
